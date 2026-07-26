@@ -3,14 +3,14 @@
 ## Init hugo site
 
 ```bash
-hugo new site mysite
+hugo new project mysite
 cd mysite
 ```
 
 ## Install the theme
 
 ```bash
-git submodule add git@github.com:MeiK2333/github-style.git themes/github-style
+git submodule add git@github.com:yeyueww/github-style.git themes/github-style
 ```
 
 ## Update the theme
@@ -32,6 +32,7 @@ mv content/posts content/post
 ## Setup readme
 
 ```bash
+# At mysite/
 hugo new readme.md
 echo '`Hello World!`' > content/readme.md
 ```
@@ -67,7 +68,9 @@ summary: "The summary content"
 
 ### Approach 2: use `<!--more-->`
 
-Use `<!--more-->` to separate content that will display in the posts page as abstraction and the rest of the content. This is different from summary, as summary will not appear in the post.
+Use `<!--more-->` to separate content that will display in the posts page as abstraction and the rest of the content.
+This is different from summary, as summary will not appear in the post.
+
 ```
 ---
 title: "title"
@@ -132,6 +135,7 @@ display block $$ ... $$
 ![latex example](https://raw.githubusercontent.com/MeiK2333/github-style/master/images/latex_example.png)
 
 ## Support MathJax
+
 you can add MathJax:true to frontmatter
 
 ```
@@ -255,9 +259,11 @@ We can do local search now, it is implemented by `fuse.js`.
 
 ## deploy.sh example
 
-There are various way to deploy to github, here is a link to official [document](https://gohugo.io/hosting-and-deployment/hosting-on-github/).
+There are various way to deploy to github, here is a link to
+official [document](https://gohugo.io/hosting-and-deployment/hosting-on-github/).
 
-Here is an sample. Note line 22 have `env HUGO_ENV="production"`, makes sure googleAnalysis is loaded during production, but is not loaded when we are testing it in localhost.
+Here is an sample. Note line 22 have `env HUGO_ENV="production"`, makes sure googleAnalysis is loaded during production,
+but is not loaded when we are testing it in localhost.
 
 ```bash
 #!/bin/sh
@@ -290,7 +296,8 @@ cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)
 #git push --all
 ```
 
-Then you can verify the site is working and use `git push --all` to push the change to github. If you don't want to check again every time, you can uncomment the `#git push --all` in the script.
+Then you can verify the site is working and use `git push --all` to push the change to github. If you don't want to
+check again every time, you can uncomment the `#git push --all` in the script.
 
 ## TODO
 

@@ -214,9 +214,9 @@
     color: var(--color-btn-text);
     background-color: var(--color-btn-bg);
     border-color: var(--color-btn-border);
-    box-shadow: var(--color-btn-shadow),var(--color-btn-inset-shadow);
+    box-shadow: var(--color-btn-shadow), var(--color-btn-inset-shadow);
     transition: .2s cubic-bezier(0.3, 0, 0.5, 1);
-    transition-property: color,background-color,border-color;
+    transition-property: color, background-color, border-color;
 }
 
 .gitalk-container .gt-container .gt-btn-preview:hover {
