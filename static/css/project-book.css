@@ -1,0 +1,455 @@
+/* Rust Book (mdBook) style project reader layout for github-style theme */
+
+:root {
+    --book-sidebar-width: 300px;
+    --book-header-height: 56px;
+}
+
+.project-book-layout {
+    display: flex;
+    min-height: calc(100vh - 120px);
+    position: relative;
+    background-color: var(--color-canvas-default, #ffffff);
+    color: var(--color-fg-default, #24292f);
+}
+
+/* Sidebar */
+.project-sidebar {
+    width: var(--book-sidebar-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background-color: var(--color-canvas-subtle, #f6f8fa);
+    border-right: 1px solid var(--color-border-default, #d0d7de);
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    transition: transform 0.25s ease, margin-left 0.25s ease;
+}
+
+.project-book-layout.sidebar-hidden .project-sidebar {
+    margin-left: calc(-1 * var(--book-sidebar-width));
+}
+
+.project-sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border-muted, #d8dee4);
+    background-color: var(--color-canvas-subtle, #f6f8fa);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.project-sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.project-sidebar-title a {
+    color: var(--color-fg-default, #24292f);
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.project-sidebar-title a:hover {
+    color: var(--color-accent-fg, #0969da);
+}
+
+.project-sidebar-desc {
+    font-size: 12px;
+    color: var(--color-fg-muted, #57606a);
+    margin-top: 6px;
+    margin-bottom: 0;
+}
+
+.project-sidebar-content {
+    padding: 12px 0 32px 0;
+    flex-grow: 1;
+}
+
+/* Chapter Tree (mdBook format) */
+.project-sidebar ol.chapter {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.project-sidebar li.chapter-item {
+    margin: 0;
+    padding: 0;
+}
+
+.project-sidebar li.chapter-item a {
+    display: flex;
+    align-items: center;
+    padding: 6px 20px;
+    color: var(--color-fg-default, #24292f);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.4;
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.project-sidebar li.chapter-item a:hover {
+    background-color: var(--color-neutral-muted, rgba(175, 184, 193, 0.2));
+    color: var(--color-accent-fg, #0969da);
+}
+
+.project-sidebar li.chapter-item.active > a {
+    background-color: var(--color-accent-subtle, #ddf4ff);
+    color: var(--color-accent-fg, #0969da);
+    font-weight: 600;
+    border-left-color: var(--color-accent-fg, #0969da);
+}
+
+/* Chapter Directory (Section Header) */
+.project-sidebar .chapter-dir-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 6px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-fg-muted, #57606a);
+    text-transform: none;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.project-sidebar .chapter-dir-header:hover {
+    color: var(--color-fg-default, #24292f);
+}
+
+.project-sidebar .chapter-dir-toggle {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.project-sidebar .chapter-dir.collapsed .chapter-dir-toggle {
+    transform: rotate(-90deg);
+}
+
+.project-sidebar .chapter-dir.collapsed ol.section {
+    display: none;
+}
+
+/* Sub-sections within directories */
+.project-sidebar ol.section {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.project-sidebar ol.section li.chapter-item a {
+    padding-left: 36px;
+    font-size: 13.5px;
+}
+
+.chapter-number {
+    display: inline-block;
+    margin-right: 6px;
+    color: var(--color-fg-muted, #57606a);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Main Reader Area */
+.project-main {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top toolbar */
+.project-toolbar {
+    height: var(--book-header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--color-border-muted, #d8dee4);
+    background-color: var(--color-canvas-default, #ffffff);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.project-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.project-sidebar-toggle-btn {
+    background: transparent;
+    border: 1px solid var(--color-border-default, #d0d7de);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--color-fg-muted, #57606a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.project-sidebar-toggle-btn:hover {
+    background-color: var(--color-neutral-muted, rgba(175, 184, 193, 0.2));
+    color: var(--color-fg-default, #24292f);
+}
+
+.project-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-fg-muted, #57606a);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project-breadcrumbs a {
+    color: var(--color-accent-fg, #0969da);
+    text-decoration: none;
+}
+
+.project-breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.project-breadcrumbs-separator {
+    color: var(--color-fg-muted, #57606a);
+}
+
+.project-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Article Container */
+.project-article-container {
+    max-width: 880px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 24px 64px 24px;
+    flex-grow: 1;
+}
+
+.project-article-header {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border-muted, #d8dee4);
+}
+
+.project-article-header h1 {
+    font-size: 30px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--color-fg-default, #24292f);
+    line-height: 1.25;
+}
+
+.project-article-meta {
+    font-size: 13px;
+    color: var(--color-fg-muted, #57606a);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.project-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    color: var(--color-accent-fg, #0969da);
+    background-color: var(--color-accent-subtle, #ddf4ff);
+    border: 1px solid var(--color-border-muted, #d8dee4);
+    border-radius: 2em;
+    text-decoration: none;
+}
+
+.project-badge:hover {
+    text-decoration: underline;
+}
+
+/* Bottom Navigation (Prev / Next Chapters) */
+.project-nav-wrapper {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border-default, #d0d7de);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.project-nav-card {
+    flex: 1;
+    max-width: 48%;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 18px;
+    border: 1px solid var(--color-border-default, #d0d7de);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--color-fg-default, #24292f);
+    background-color: var(--color-canvas-subtle, #f6f8fa);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.project-nav-card:hover {
+    border-color: var(--color-accent-fg, #0969da);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+}
+
+.project-nav-card.prev {
+    align-items: flex-start;
+}
+
+.project-nav-card.next {
+    align-items: flex-end;
+    margin-left: auto;
+}
+
+.project-nav-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg-muted, #57606a);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.project-nav-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-accent-fg, #0969da);
+    word-break: break-word;
+}
+
+/* Projects Index Page Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.project-card {
+    border: 1px solid var(--color-border-default, #d0d7de);
+    border-radius: 6px;
+    padding: 20px;
+    background-color: var(--color-canvas-default, #ffffff);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+    border-color: var(--color-accent-fg, #0969da);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.project-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.project-card-title a {
+    color: var(--color-accent-fg, #0969da);
+    text-decoration: none;
+}
+
+.project-card-title a:hover {
+    text-decoration: underline;
+}
+
+.project-card-desc {
+    color: var(--color-fg-muted, #57606a);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+.project-card-meta {
+    font-size: 12px;
+    color: var(--color-fg-muted, #57606a);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-top: 1px solid var(--color-border-muted, #d8dee4);
+    padding-top: 12px;
+}
+
+/* Mobile & Tablet Responsive Layout */
+.project-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 19;
+}
+
+@media (max-width: 899px) {
+    .project-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 30;
+        transform: translateX(-100%);
+        margin-left: 0 !important;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .project-book-layout.sidebar-mobile-open .project-sidebar {
+        transform: translateX(0);
+    }
+
+    .project-book-layout.sidebar-mobile-open .project-sidebar-backdrop {
+        display: block;
+    }
+
+    .project-article-container {
+        padding: 20px 16px 48px 16px;
+    }
+
+    .project-nav-wrapper {
+        flex-direction: column;
+    }
+
+    .project-nav-card {
+        max-width: 100%;
+    }
+}

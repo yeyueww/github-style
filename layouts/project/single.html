@@ -1,0 +1,117 @@
+{{ define "content" }}
+{{ $sectionName := "project" }}
+{{ $projName := "" }}
+
+{{ if .File }}
+  {{ $parts := split (path.Clean .File.Path) "/" }}
+  {{ $sectionName = index $parts 0 }}
+  {{ if gt (len $parts) 1 }}
+    {{ $projName = index $parts 1 }}
+  {{ end }}
+{{ else }}
+  {{ $sectionName = .Section }}
+{{ end }}
+
+{{ $projPrefix := printf "%s/%s/" $sectionName $projName }}
+
+{{ $projTitle := humanize $projName }}
+{{ $projIndexPage := site.GetPage (printf "/%s/%s" $sectionName $projName) }}
+{{ if and $projIndexPage $projIndexPage.Title }}
+  {{ $projTitle = $projIndexPage.Title }}
+{{ end }}
+{{ $projLandingUrl := urls.JoinPath site.BaseURL $sectionName $projName }}
+{{ if or (not $projIndexPage) (not $projIndexPage.File) }}
+  {{ range where site.RegularPages "File.Dir" $projPrefix }}
+    {{ if and (eq $projLandingUrl (urls.JoinPath site.BaseURL $sectionName $projName)) (in (slice "readme.md" "index.md" "_index.md") (lower .File.LogicalName)) }}
+      {{ $projLandingUrl = .RelPermalink }}
+      {{ if eq $projTitle (humanize $projName) }}
+        {{ $projTitle = .Title }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+<div class="project-book-layout">
+    {{/* Left Sidebar with TOC */}}
+    <aside class="project-sidebar" id="project-sidebar">
+        {{ partial "project-toc.html" . }}
+    </aside>
+
+    <div class="project-sidebar-backdrop"></div>
+
+    {{/* Main Reader */}}
+    <main class="project-main">
+        {{/* Top Toolbar with toggle, breadcrumb, and links */}}
+        <div class="project-toolbar">
+            <div class="project-toolbar-left">
+                <button id="project-sidebar-toggle" class="project-sidebar-toggle-btn" type="button" aria-label="Toggle Table of Contents" aria-expanded="true">
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M1 2.75A.75.75 0 011.75 2h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 2.75zm0 5A.75.75 0 011.75 7h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 7.75zM1.75 12h12.5a.75.75 0 010 1.5H1.75a.75.75 0 010-1.5z"></path>
+                    </svg>
+                </button>
+
+                <nav class="project-breadcrumbs" aria-label="Breadcrumb">
+                    <a href='{{ urls.JoinPath site.BaseURL $sectionName }}'>Projects</a>
+                    <span class="project-breadcrumbs-separator">/</span>
+                    <a href='{{ $projLandingUrl }}'>{{ $projTitle }}</a>
+                    {{ if .File }}
+                      {{ $relDir := strings.TrimPrefix $projPrefix .File.Dir }}
+                      {{ if ne $relDir "" }}
+                        <span class="project-breadcrumbs-separator">/</span>
+                        <span>{{ humanize (index (split $relDir "/") 0) }}</span>
+                      {{ end }}
+                    {{ end }}
+                    <span class="project-breadcrumbs-separator">/</span>
+                    <span>{{ .Title }}</span>
+                </nav>
+            </div>
+
+            <div class="project-toolbar-right">
+                <a href='{{ urls.JoinPath site.BaseURL "post" }}' class="btn btn-sm btn-outline d-none d-sm-inline-block">
+                    ← Posts
+                </a>
+            </div>
+        </div>
+
+        {{/* Article Body */}}
+        <div class="project-article-container">
+            <header class="project-article-header">
+                <h1>{{ .Title }}</h1>
+                <div class="project-article-meta">
+                    <a href='{{ $projLandingUrl }}' class="project-badge">
+                        <svg class="octicon octicon-repo mr-1" viewBox="0 0 16 16" version="1.1" width="12" height="12" fill="currentColor">
+                            <path fill-rule="evenodd" d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"></path>
+                        </svg>
+                        {{ $projTitle }}
+                    </a>
+
+                    {{ if not .PublishDate.IsZero }}
+                    <span>
+                        Published <relative-time datetime='{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}'>{{ .PublishDate.Format "Jan 02, 2006" }}</relative-time>
+                    </span>
+                    {{ end }}
+
+                    <span>{{ countwords .Content }} Words</span>
+
+                    {{ with .Params.tags }}
+                    <span>
+                        {{ range . }}
+                        <a class="muted-link mr-2" href='{{ absURL (print "tags/" . | urlize) }}'>#{{ . }}</a>
+                        {{ end }}
+                    </span>
+                    {{ end }}
+                </div>
+            </header>
+
+            <article class="markdown-body entry-content">
+                {{ .Content }}
+            </article>
+
+            {{/* Bottom Prev / Next chapter navigation */}}
+            {{ partial "project-nav.html" . }}
+        </div>
+    </main>
+</div>
+
+<script type="application/javascript" src='{{ "js/project-book.js" | absURL }}'></script>
+{{ end }}

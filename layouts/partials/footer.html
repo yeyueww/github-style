@@ -10,11 +10,13 @@
             </svg>
         </a>
         <ul class="list-style-none d-flex flex-wrap col-12 flex-justify-center flex-lg-justify-between mb-2 mb-lg-0">
-            {{ if .Site.Copyright }}
-            <li class="mr-3 mr-lg-0">{{ .Site.Copyright | safeHTML }}</li>
-            {{ else }}
-            <li class="mr-3 mr-lg-0">Theme by <a href='https://github.com/MeiK2333/github-style'>github-style</a></li>
-            {{ end }}
+            <ul class="list-style-none">
+                {{ if .Site.Copyright }}
+                <li class="mr-3 mr-lg-0">{{ .Site.Copyright | safeHTML }}</li>
+                {{ end }}
+                <li class="mr-3 mr-lg-0">Theme by <a href='https://github.com/MeiK2333/github-style'>MeiK2333/github-style</a>,
+                    custom by <a href="https://github.com/yeyueww/github-style">yeyueww/github-style</a></li>
+            </ul>
             <li class="mr-3 mr-lg-0">GitHub and the Invertocat logo are trademarks of <a href="https://github.com/">GitHub,
                 Inc.</a></li>
         </ul>

@@ -1,5 +1,19 @@
-{{ $section := where .Site.RegularPages "Section" "in" (slice "post") }}
+{{ $section := where .Site.RegularPages "Section" "in" (slice "post" "project" "projects") }}
+{{ $section := where $section "Params.hidden" "ne" true }}
 {{ $section_count := len $section }}
+
+{{ $proj_section := where .Site.RegularPages "Section" "in" (slice "project" "projects") }}
+{{ $projectsMap := dict }}
+{{ range $proj_section }}
+  {{ if .File }}
+    {{ $parts := split (path.Clean .File.Path) "/" }}
+    {{ if gt (len $parts) 1 }}
+      {{ $projectsMap = merge $projectsMap (dict (index $parts 1) true) }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $project_count := len $projectsMap }}
+
 <div class="UnderlineNav user-profile-nav d-block d-md-none position-sticky top-0 pl-3 ml-n3 mr-n3 pr-3 bg-white"
      style="z-index:3;">
     <nav class="UnderlineNav-body">
@@ -12,8 +26,8 @@
             </svg>
             Overview
         </a>
-        <a class='UnderlineNav-item  {{ if .InSection (site.GetPage "section" "post") }} selected {{ end }}{{ if eq .Type "tags" }} selected {{ end }}'
-           href='{{urls.JoinPath .Site.BaseURL " post"}}'>
+        <a class='UnderlineNav-item {{ if or (.InSection (site.GetPage "section" "post")) (eq .Section "post") }} selected {{ end }}'
+           href='{{urls.JoinPath .Site.BaseURL "post"}}'>
         <svg class="octicon octicon-repo UnderlineNav-octicon hide-sm" height="16" viewBox="0 0 16 16" version="1.1"
              width="16">
             <path fill-rule="evenodd"
@@ -23,8 +37,16 @@
         Posts
         <span class="Counter ">{{ $section_count}}</span>
         </a>
-        <a class='UnderlineNav-item  {{ if .InSection (site.GetPage "section" "tags") }} selected {{ end }}{{ if eq .Type "tags" }} selected {{ end }}'
-           href='{{urls.JoinPath .Site.BaseURL " tags"}}'>
+        <a class='UnderlineNav-item {{ if or (.InSection (site.GetPage "section" "project")) (.InSection (site.GetPage "section" "projects")) (in (slice "project" "projects") .Section) }} selected {{ end }}'
+           href='{{urls.JoinPath .Site.BaseURL "project"}}'>
+        <svg class="octicon octicon-project UnderlineNav-octicon hide-sm" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+            <path fill-rule="evenodd" d="M1.75 0A1.75 1.75 0 000 1.75v12.5C0 15.216.784 16 1.75 16h12.5A1.75 1.75 0 0016 14.25V1.75A1.75 1.75 0 0014.25 0H1.75zM1.5 1.75a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v12.5a.25.25 0 01-.25.25H1.75a.25.25 0 01-.25-.25V1.75zM11.75 3a.75.75 0 00-.75.75v7.5a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75zm-8.25.75a.75.75 0 011.5 0v5.5a.75.75 0 01-1.5 0v-5.5zM8 3a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0v-3.5A.75.75 0 008 3z"></path>
+        </svg>
+        Projects
+        <span class="Counter ">{{ $project_count }}</span>
+        </a>
+        <a class='UnderlineNav-item {{ if or (.InSection (site.GetPage "section" "tags")) (eq .Type "tags") }} selected {{ end }}'
+           href='{{urls.JoinPath .Site.BaseURL "tags"}}'>
         <svg class="octicon octicon-repo UnderlineNav-octicon hide-sm" height="16" viewBox="0 0 16 16" version="1.1"
              width="16">
             <path fill-rule="evenodd"

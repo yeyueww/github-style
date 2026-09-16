@@ -1,0 +1,123 @@
+{{/* Previous / Next chapter navigation (Rust Book / mdBook style) */}}
+{{ $sectionName := "project" }}
+{{ $projName := "" }}
+
+{{ if .File }}
+  {{ $parts := split (path.Clean .File.Path) "/" }}
+  {{ $sectionName = index $parts 0 }}
+  {{ if gt (len $parts) 1 }}
+    {{ $projName = index $parts 1 }}
+  {{ end }}
+{{ else }}
+  {{ $sectionName = .Section }}
+{{ end }}
+
+{{ $projPrefix := printf "%s/%s/" $sectionName $projName }}
+
+{{ $projPages := slice }}
+{{ range site.RegularPages }}
+  {{ if strings.HasPrefix .File.Dir $projPrefix }}
+    {{ $projPages = $projPages | append . }}
+  {{ end }}
+{{ end }}
+
+{{ $singlePages := slice }}
+{{ $dirPages := dict }}
+
+{{ range $projPages }}
+  {{ $relDir := strings.TrimPrefix $projPrefix .File.Dir }}
+  {{ if eq $relDir "" }}
+    {{ $singlePages = $singlePages | append . }}
+  {{ else }}
+    {{ $dirName := index (split $relDir "/") 0 }}
+    {{ $existing := index $dirPages $dirName | default slice }}
+    {{ $existing = $existing | append . }}
+    {{ $dirPages = merge $dirPages (dict $dirName $existing) }}
+  {{ end }}
+{{ end }}
+
+{{ $tocItems := slice }}
+
+{{ range $singlePages }}
+  {{ $sortKey := printf "%08d_%s" (int .Weight) .File.LogicalName }}
+  {{ $tocItems = $tocItems | append (dict "isDir" false "page" . "sortKey" $sortKey) }}
+{{ end }}
+
+{{ range $dirName, $pages := $dirPages }}
+  {{ $minWeight := 999999 }}
+  {{ range $pages }}
+    {{ if lt .Weight $minWeight }}{{ $minWeight = .Weight }}{{ end }}
+  {{ end }}
+  {{ if eq $minWeight 999999 }}{{ $minWeight = 0 }}{{ end }}
+
+  {{ $sortedSubpages := slice }}
+  {{ range $pages }}
+    {{ $subSortKey := printf "%08d_%s" (int .Weight) .File.LogicalName }}
+    {{ $sortedSubpages = $sortedSubpages | append (dict "page" . "sortKey" $subSortKey) }}
+  {{ end }}
+  {{ $sortedSubpages = sort $sortedSubpages "sortKey" "asc" }}
+
+  {{ $sortKey := printf "%08d_%s" (int $minWeight) $dirName }}
+  {{ $tocItems = $tocItems | append (dict "isDir" true "pages" $sortedSubpages "sortKey" $sortKey) }}
+{{ end }}
+
+{{ $tocItems = sort $tocItems "sortKey" "asc" }}
+
+{{/* Flatten pages into reading sequence */}}
+{{ $flatPages := slice }}
+{{ range $item := $tocItems }}
+  {{ if $item.isDir }}
+    {{ range $sub := $item.pages }}
+      {{ $flatPages = $flatPages | append $sub.page }}
+    {{ end }}
+  {{ else }}
+    {{ $flatPages = $flatPages | append $item.page }}
+  {{ end }}
+{{ end }}
+
+{{/* Find current page index */}}
+{{ $currIdx := -1 }}
+{{ range $idx, $p := $flatPages }}
+  {{ if eq $p.RelPermalink $.RelPermalink }}
+    {{ $currIdx = $idx }}
+  {{ end }}
+{{ end }}
+
+{{ $prevPage := false }}
+{{ $nextPage := false }}
+
+{{ if gt $currIdx 0 }}
+  {{ $prevPage = index $flatPages (sub $currIdx 1) }}
+{{ end }}
+
+{{ if and (ge $currIdx 0) (lt $currIdx (sub (len $flatPages) 1)) }}
+  {{ $nextPage = index $flatPages (add $currIdx 1) }}
+{{ end }}
+
+{{ if or $prevPage $nextPage }}
+<nav class="project-nav-wrapper" aria-label="Chapter navigation">
+    {{ if $prevPage }}
+    <a href="{{ $prevPage.RelPermalink }}" class="project-nav-card prev" rel="prev">
+        <span class="project-nav-label">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h8.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path>
+            </svg>
+            Previous
+        </span>
+        <span class="project-nav-title">{{ $prevPage.Title }}</span>
+    </a>
+    {{ end }}
+
+    {{ if $nextPage }}
+    <a href="{{ $nextPage.RelPermalink }}" class="project-nav-card next" rel="next">
+        <span class="project-nav-label">
+            Next
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.22 3.47a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L11.19 9H2.75a.75.75 0 010-1.5h8.44L8.22 4.53a.75.75 0 010-1.06z"></path>
+            </svg>
+        </span>
+        <span class="project-nav-title">{{ $nextPage.Title }}</span>
+    </a>
+    {{ end }}
+</nav>
+{{ end }}

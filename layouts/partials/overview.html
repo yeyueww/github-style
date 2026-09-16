@@ -5,7 +5,8 @@
 
 {{ if ne (len $pinned) 0}}
 {{ else }}
-{{ $section = where .Site.RegularPages "Section" "in" (slice "post") }}
+{{ $section = where .Site.RegularPages "Section" "in" (slice "post" "project" "projects") }}
+{{ $section = where $section "Params.hidden" "ne" true }}
 {{ $section_title = "Popular posts" }}
 {{ end }}
 <div>
@@ -85,7 +86,8 @@
             </div>
         </div>
 
-        {{ $section := where .Site.RegularPages "Section" "in" (slice "post") }}
+        {{ $section := where .Site.RegularPages "Section" "in" (slice "post" "project" "projects") }}
+        {{ $section = where $section "Params.hidden" "ne" true }}
         <div class="mt-4 position-relative" id="contributions" data='[{{ range $index, $elem := $section }}
 {
   "title": "{{ .Title }}",

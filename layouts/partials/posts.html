@@ -26,12 +26,54 @@
           {{partial "tags.html" .}}
         {{end}}
       {{ end }}
+      {{ $pages := .Pages }}
+      {{ if or (eq .Section "post") (eq .Type "post") }}
+        {{ $post_pages := where .Site.RegularPages "Section" "in" (slice "post") }}
+        {{ $proj_pages := where .Site.RegularPages "Section" "in" (slice "project" "projects") }}
+        {{ $all_pages := $post_pages | union $proj_pages }}
+        {{ $pages = where $all_pages "Params.hidden" "ne" true }}
+        {{ $pages = $pages.ByPublishDate.Reverse }}
+      {{ end }}
+      {{ $paginator := .Paginate $pages }}
       <ul>
-        {{ range .Paginator.Pages }}
+        {{ range $paginator.Pages }}
         <li class="col-12 d-flex width-full py-4 border-bottom color-border-secondary public source">
           <div class="col-12 d-inline-block">
             <div class="d-inline-block mb-1">
               <h3 class="wb-break-all">
+                {{ if in (slice "project" "projects") .Section }}
+                  {{ $pName := "" }}
+                  {{ $badgeUrl := "" }}
+                  {{ if .File }}
+                    {{ $parts := split (path.Clean .File.Path) "/" }}
+                    {{ if gt (len $parts) 1 }}
+                      {{ $pName = index $parts 1 }}
+                      {{ $pSec := index $parts 0 }}
+                      {{ $secPage := site.GetPage (printf "/%s/%s" $pSec $pName) }}
+                      {{ if and $secPage $secPage.File }}
+                        {{ $badgeUrl = urls.JoinPath site.BaseURL $pSec $pName }}
+                      {{ else }}
+                        {{ $pPrefix := printf "%s/%s/" $pSec $pName }}
+                        {{ range where site.RegularPages "File.Dir" $pPrefix }}
+                          {{ if and (not $badgeUrl) (in (slice "readme.md" "index.md" "_index.md") (lower .File.LogicalName)) }}
+                            {{ $badgeUrl = .RelPermalink }}
+                          {{ end }}
+                        {{ end }}
+                        {{ if not $badgeUrl }}
+                          {{ $badgeUrl = .RelPermalink }}
+                        {{ end }}
+                      {{ end }}
+                    {{ end }}
+                  {{ end }}
+                  {{ if $pName }}
+                    <a href='{{ $badgeUrl }}' class="project-badge mr-2">
+                      <svg class="octicon octicon-repo mr-1" viewBox="0 0 16 16" version="1.1" width="12" height="12" fill="currentColor">
+                        <path fill-rule="evenodd" d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"></path>
+                      </svg>
+                      {{ humanize $pName }}
+                    </a>
+                  {{ end }}
+                {{ end }}
                 <a href='{{ .Permalink }}'>{{ .Title }}</a>
               </h3>
             </div>
@@ -56,11 +98,13 @@
               {{ end }}
               {{ end }}
 
+              {{ if not .PublishDate.IsZero }}
               Created
               <relative-time datetime='{{ .PublishDate.Format " Mon, 02 Jan 2006 15:04:05 -0700" }}' class="no-wrap"
                 title='{{ .PublishDate.Format " Mon, 02 Jan 2006 15:04:05 -0700" }}'>
                 {{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}
               </relative-time>
+              {{ end }}
             </div>
           </div>
         </li>
@@ -68,13 +112,13 @@
       </ul>
       <div class="paginate-container">
         <div class="BtnGroup">
-          {{ if .Paginator.HasPrev }}
-          <a rel="nofollow" class="btn btn-outline BtnGroup-item" href='{{ .Paginator.Prev.URL }}'>Previous</a>
+          {{ if $paginator.HasPrev }}
+          <a rel="nofollow" class="btn btn-outline BtnGroup-item" href='{{ $paginator.Prev.URL }}'>Previous</a>
           {{ else }}
           <button class="btn btn-outline BtnGroup-item" disabled="disabled">Previous</button>
           {{ end }}
-          {{ if .Paginator.HasNext }}
-          <a rel="nofollow" class="btn btn-outline BtnGroup-item" href='{{ .Paginator.Next.URL }}'>Next</a>
+          {{ if $paginator.HasNext }}
+          <a rel="nofollow" class="btn btn-outline BtnGroup-item" href='{{ $paginator.Next.URL }}'>Next</a>
           {{ else }}
           <button class="btn btn-outline BtnGroup-item" disabled="disabled">Next</button>
           {{ end }}

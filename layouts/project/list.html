@@ -1,0 +1,104 @@
+{{ define "content" }}
+{{ $cleanPath := strings.Trim (path.Clean .RelPermalink) "/" }}
+{{ $pathParts := split $cleanPath "/" }}
+{{ $isRootList := le (len $pathParts) 1 }}
+
+{{ if $isRootList }}
+{{/* ============================================================ */}}
+{{/* CASE 1: /project/ or /projects/ - List of all projects        */}}
+{{/* ============================================================ */}}
+<div class="application-main">
+    {{ partial "user-profile.html" . }}
+    {{ partial "projects.html" . }}
+</div>
+
+{{ else }}
+{{/* ============================================================ */}}
+{{/* CASE 2: /project/test_project/ - Single project landing page */}}
+{{/* ============================================================ */}}
+{{ $sectionName := index $pathParts 0 }}
+{{ $projName := index $pathParts 1 }}
+{{ $projPrefix := printf "%s/%s/" $sectionName $projName }}
+
+{{ $projPages := slice }}
+{{ range site.RegularPages }}
+  {{ if strings.HasPrefix .File.Dir $projPrefix }}
+    {{ $projPages = $projPages | append . }}
+  {{ end }}
+{{ end }}
+
+{{/* Look for README or intro page content */}}
+{{ $introPage := false }}
+{{ range $projPages }}
+  {{ if and (in (slice "readme.md" "index.md") (lower .File.LogicalName)) (eq .File.Dir $projPrefix) }}
+    {{ $introPage = . }}
+  {{ end }}
+{{ end }}
+
+{{ if not $introPage }}
+  {{ if gt (len $projPages) 0 }}
+    {{ $introPage = index $projPages 0 }}
+  {{ end }}
+{{ end }}
+
+<div class="project-book-layout">
+    <aside class="project-sidebar" id="project-sidebar">
+        {{ partial "project-toc.html" (or $introPage .) }}
+    </aside>
+
+    <div class="project-sidebar-backdrop"></div>
+
+    <main class="project-main">
+        <div class="project-toolbar">
+            <div class="project-toolbar-left">
+                <button id="project-sidebar-toggle" class="project-sidebar-toggle-btn" type="button" aria-label="Toggle Table of Contents" aria-expanded="true">
+                    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                        <path fill-rule="evenodd" d="M1 2.75A.75.75 0 011.75 2h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 2.75zm0 5A.75.75 0 011.75 7h12.5a.75.75 0 010 1.5H1.75A.75.75 0 011 7.75zM1.75 12h12.5a.75.75 0 010 1.5H1.75a.75.75 0 010-1.5z"></path>
+                    </svg>
+                </button>
+
+                <nav class="project-breadcrumbs" aria-label="Breadcrumb">
+                    <a href='{{ urls.JoinPath site.BaseURL $sectionName }}'>Projects</a>
+                    <span class="project-breadcrumbs-separator">/</span>
+                    <span>{{ humanize $projName }}</span>
+                </nav>
+            </div>
+
+            <div class="project-toolbar-right">
+                <a href='{{ urls.JoinPath site.BaseURL "post" }}' class="btn btn-sm btn-outline d-none d-sm-inline-block">
+                    ← Posts
+                </a>
+            </div>
+        </div>
+
+        <div class="project-article-container">
+            {{ if .Content }}
+                <article class="markdown-body entry-content">
+                    {{ .Content }}
+                </article>
+            {{ else if $introPage }}
+                <header class="project-article-header">
+                    <h1>{{ $introPage.Title }}</h1>
+                </header>
+                <article class="markdown-body entry-content">
+                    {{ $introPage.Content }}
+                </article>
+            {{ else }}
+                <header class="project-article-header">
+                    <h1>{{ humanize $projName }}</h1>
+                </header>
+                <article class="markdown-body entry-content">
+                    <p>Welcome to <strong>{{ humanize $projName }}</strong>. Please select a chapter from the sidebar to begin reading.</p>
+                </article>
+            {{ end }}
+
+            {{ if $introPage }}
+              {{ partial "project-nav.html" $introPage }}
+            {{ end }}
+        </div>
+    </main>
+</div>
+
+<script type="application/javascript" src='{{ "js/project-book.js" | absURL }}'></script>
+{{ end }}
+{{ end }}
